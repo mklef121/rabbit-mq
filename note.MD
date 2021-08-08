@@ -26,7 +26,7 @@ AMQP is truly interoperable as it specifies the wire format for messages, leavin
 
 **Connection:** Physical network (TCP) connection between the application (publisher/consumer) and a broker. 
 
-**Channel:** A channel is a virtual connection inside a connection. It reuses a connection, forgoing the need to reauthorize and open a new TCP stream. When messages are published or consumed, it is done over a channel. Many channels can be established within a single connection.
+**Channel:** A channel is a virtual connection inside a connection. It reuses a connection, forgoing the need to reauthorize and open a new TCP stream. When messages are published or consumed, it is done over a channel. Many channels can be established within a single connection. A channel reuses a connection, forgoing the need to reauthorize and open a new TCP stream, making it more resource-efficient.
 
 **Queue:** A queue is a sequence of items; in this case, messages. The queue exists within the broker.
 
@@ -45,4 +45,13 @@ RabbitMQ is an Erlang implementation of an AMQP broker. It implements Version 0-
 
 For data persistence, RabbitMQ relies on **Mnesia**, the in-memory/file-persisted embedded database of Erlang. Mnesia stores information about **users**, **exchanges**, **queues**, **bindings**, and so on. The queue index stores message positions and information on whether a message has been delivered or not. Messages are stored either in the queue index or in the message store, a key-value store shared among all queues.
 
-RabbitMQ can be set up on a single, standalone instance, or as a cluster on multiple servers:
+RabbitMQ can be set up on a single, standalone instance, or as a cluster on multiple servers(Erlang's ingrained clustering abilities easily helps this feature)
+
+
+### Uses of RabbitMq
+
+- Message queues between microservices
+- Event and tasks: Email event is sent, a consumer creates a task to forward the email to the receipient
+
+### Books
+- https://www.packtpub.com/product/rabbitmq-essentials-second-edition/9781789131666
