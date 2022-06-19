@@ -19,7 +19,7 @@ Systems and applications play both the role of message publishers (producers) an
 AMQP is truly interoperable as it specifies the wire format for messages, leaving nothing open to interpretation by a particular vendor or hosting platform. RabbitMQ is built upon the AMQP 0-9-1 specification.
 
 
-### Concepts
+### Core Concepts of AMQP implementation
 **Broker or message broker:** A broker is a piece of software that receives messages from one application or service, and delivers them to another application, service, or broker.
 
 **Virtual host, vhost:** A vhost exists within the broker. It's a way to separate applications that are using the same RabbitMQ instance. for example, separating working environments into production on one vhost and staging on another, keeping them within the same broker instead of setting up multiple brokers. Users access are restricted on each vhost

@@ -23,4 +23,7 @@ rabbitmqctl add_vhost dev-vhost (creates a v-host for development)
 
 https://www.rabbitmq.com/rabbitmqctl.8.html#set_permissions tells us of how to set permissions for users in any vhost
 
-rabbitmqctl set_permissions -p dev-vhost miracool-dev ".*" ".*" ".*" (give miracool-dev permission to do all on the dev-vhost virtual host)
+rabbitmqctl set_permissions -p dev-vhost miracool-dev ".*" ".*" ".*" (give miracool-dev permission to do all on the **dev-vhost** virtual host)
+
+The `".*" ".*" ".*"`  is a triplet of permissions for the considered vhost, which grants **configure**, **write**, and **read** permissions on the designated resources for the considered user and vhost. 
+Resources, which consist of exchanges and queues, are designated by regular expressions that match their names. In this case, any resource that's requested via the `.*` regular expression is allowed.
