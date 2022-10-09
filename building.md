@@ -1,24 +1,47 @@
+#### Building our app
 
-> Applications that are going to exchange messages over RabbitMQ need to establish a permanent connection to the message broker. When this connection is established, a channel needs to be created so that message-oriented interactions, such as publishing and consuming messages, can be performed.
+1. Create a vhost using
+    - `sudo rabbitmqctl add_vhost cc-dev-vhost`
+2. Create user cc-dev
+    - `sudo rabbitmqctl add_user cc-dev taxi123`
+3. Give miracool user (the admin) and the cc-dev user full access to **cc-dev-vhost** vhost.
+    - `sudo rabbitmqctl set_permissions -p cc-dev-vhost miracool ".*" ".*" ".*"` (see [triplet permission](./setup.md#configuring-dedicated-vhosts))
+    - `sudo rabbitmqctl set_permissions -p cc-dev-vhost cc-dev ".*" ".*" ".*"`
+4. 
 
-### Exchanges
+#### architecture behind CC
+- CC needs one application that is used by the taxi drivers 
+- another application that is used by the customer. 
+- The customer should be able to request a taxi via the application, and the taxi driver should be able to accept a request (the ride):
 
-- **direct exchange:** which delivers messages to a single queue
-- **topic exchange:** which delivers messages to multiple queues based on pattern-matching routing keys.
+![app achitecture](./achitecture-model.png)
 
-Creating connections is a costly operation, very much like it is with database connections. Typically, database connections are pooled, where each instance of the pool is used by a single execution thread. AMQP is different in the sense that a single connection can be used by many threads through many multiplexed channels.
+The endgoal is that
+
+- The customer should be able to enter information about the starting point and the endpoint of the trip. 
+- Active drivers receive the requests and are able to accept them. 
+- The customer should, in the end, be able to follow the location of the taxi during the trip.
 
 
-A routing strategy determines which queue (or queues) the message will be routed to. The routing strategy bases its decision on a routing key (a free-form string) and potentially on message meta-information.
+#### Information flow in CC
 
-### The direct exchange
-A direct exchange delivers messages to queues based on a message routing key. A message goes to the queue(s) whose bindings routine key matches the routing key of the message.
+Data flow in CC can be explained in 10 steps, as highlighted below:
 
-An example use case of direct exchange could be as follows:
-1. The customer orders the taxi named taxi.1. An HTTP request is sent from the customer's mobile application to the Application Service.
-2. The Application Service sends a message to RabbitMQ with a routing key, taxi.1. The message routing key matches the name of the queue, so the message ends up in the taxi.1 queue.
+1. A customer uses CC's mobile application to book a taxi. A request is now sent from the mobile application to the Application Service. This request includes information about the trip that the customer wants to book.
+2. The Application Service stores the request in a database.
+3. The Application Service adds a message with information about the trip to a queue in RabbitMQ.
+4. Connected taxi cars subscribe to the message (the booking request).
+5. A taxi responds to the customer by sending a message back to RabbitMQ.
+6. The Application Service subscribes to the messages.
+7. Again, the Application Service stores the information in a database.
+8. The Application Service forwards the information to the customer.
+9. The taxi app starts to automatically send the taxi's geographical location at a given interval to RabbitMQ.
+10. The location of the taxi is then passed straight to the customer's mobile application, via WebSockets, so that they know when the taxi arrives.
 
-### Other types of routing exchanges
-- Fanout: Messages are routed to all queues bound to the fanout exchange. 
-- Topic: Wildcards must form a match between the routing key and the binding's specific routing pattern.
-- Headers: Use the message header attributes for routing.
+All these can be illustrated in the diagram below.
+
+![main application architecture](./main-application-architecture.png)
+
+
+> NOTE: An Advanced Message Queuing Protocol (AMQP) connection is a link between the client and the broker that performs underlying networking tasks, including initial authentication, IP resolution, and networking: Each AMQP **connection** maintains a set of underlying **channels**. A channel reuses a connection, forgoing the need to reauthorize and open a new TCP stream, making it more resource-efficient.
+ 
